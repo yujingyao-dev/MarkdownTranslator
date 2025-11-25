@@ -1,4 +1,5 @@
 # Markdown Translator
+![GitHub license](https://img.shields.io/github/license/yujingyao-dev/MarkdownTranslator)
 
 A localized translation tool based on Python + Flask + PyWebView, offering a native Mac app-like experience.
 
@@ -21,8 +22,8 @@ A localized translation tool based on Python + Flask + PyWebView, offering a nat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/你的用户名/你的仓库名.git
-   cd 你的仓库名
+   git clone https://github.com/yujingyao-dev/MarkdownTranslator
+   cd MarkdownTranslator
    ```
 
 2. Install dependencies:
@@ -37,17 +38,19 @@ A localized translation tool based on Python + Flask + PyWebView, offering a nat
 
 ## How to Build
 Mac users can execute the following command to generate the .app file:
-    ```bash
-    pyinstaller --name "MarkdownTranslator" \
-                --windowed \
-                --add-data "templates:templates" \
-                --add-data "static:static" \
-                --clean \
-                --noconfirm \
-                app.py
-    ```
+
+ ```bash
+ pyinstaller --name "MarkdownTranslator" \
+             --windowed \
+             --add-data "templates:templates" \
+             --add-data "static:static" \
+             --clean \
+             --noconfirm \
+             app.py
+ ```
 
 ## License
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Acknowledgement
 - I thank my father and mother, who give birth to me. 
