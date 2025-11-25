@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Translator</title>
+    
+    <!-- 1. 引入 FontAwesome (图标) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 2. 引入 EasyMDE (编辑器样式) -->
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <!-- 3. 本地样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- 4. 引入 JS 库 -->
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Markdown Translator Pro</h1>
+    
+    <div class="translation-grid">
+        
+        <!-- 左侧：Markdown 编辑器 -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-label">Source (Markdown)</span>
+            </div>
+            <!-- EasyMDE 会接管这个 textarea -->
+            <textarea id="markdownEditor"></textarea>
+        </div>
+
+        <!-- 右侧：Markdown 渲染结果 -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-label">Preview</span>
+                <div class="copy-actions">
+                    <button class="action-btn" onclick="copyResult('text')" title="Copy Plain Text">
+                        <i class="fa-solid fa-align-left"></i> Text
+                    </button>
+                    <button class="action-btn" onclick="copyResult('md')" title="Copy Markdown">
+                        <i class="fa-brands fa-markdown"></i> MD
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 渲染后的 HTML 容器 -->
+            <div id="outputContainer" class="output-container markdown-body"></div>
+
+            <!-- 加载遮罩 -->
+            <div id="loadingOverlay" class="loading-overlay">
+                <div class="spinner"></div>
+                <div style="color: #30d158; font-size: 14px;">Translating...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="main-btn" id="translateBtn" onclick="startTranslation()">Translate</button>
+    </div>
+</div>
+
+<script>
+    // --- 1. 初始化 EasyMDE 编辑器 ---
+    const easyMDE = new EasyMDE({
+        element: document.getElementById('markdownEditor'),
+        status: false, // 隐藏底部状态栏
+        spellChecker: false, // 关闭拼写检查
+        toolbar: ["bold", "italic", "heading", "|", "quote", "code", "unordered-list", "ordered-list", "|", "link", "clean-block"], // 自定义工具栏
+        placeholder: "Type your markdown here..."
+    });
+
+    // 用于存储翻译回来的原始 Markdown 文本，供复制使用
+    let rawTranslationMarkdown = "";
+
+    async function startTranslation() {
+        // 获取编辑器内容
+        const inputVal = easyMDE.value().trim();
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const outputContainer = document.getElementById('outputContainer');
+        const btn = document.getElementById('translateBtn');
+
+        if (!inputVal) return;
+
+        // UI 状态更新
+        btn.disabled = true;
+        loadingOverlay.classList.add('active');
+        outputContainer.innerHTML = ''; 
+
+        try {
+            const response = await fetch('/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: inputVal })
+            });
+
+            const data = await response.json();
+            rawTranslationMarkdown = data.result; // 存下来备用
+
+            // --- 关键：使用 Marked.js 渲染 Markdown 为 HTML ---
+            outputContainer.innerHTML = marked.parse(rawTranslationMarkdown);
+
+        } catch (error) {
+            console.error('Error:', error);
+            outputContainer.innerHTML = '<p style="color: #ff453a">Translation failed.</p>';
+        } finally {
+            loadingOverlay.classList.remove('active');
+            btn.disabled = false;
+        }
+    }
+
+    // --- 复制功能 ---
+    function copyResult(type) {
+        if (!rawTranslationMarkdown) return;
+        
+        let textToCopy = "";
+        if (type === 'md') {
+            textToCopy = rawTranslationMarkdown;
+        } else {
+            // 获取纯文本：利用 DOM 的 innerText 特性
+            textToCopy = document.getElementById('outputContainer').innerText;
+        }
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // 给个简单的反馈
+            const btn = event.currentTarget;
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+            }, 1500);
+        });
+    }
+</script>
+
+</body>
+</html>
