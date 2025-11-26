@@ -5,7 +5,9 @@ from flask import Flask, render_template, request, jsonify
 import webview
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # --- 1. 资源路径处理 (为了打包exe准备) ---
 def resource_path(relative_path):
@@ -19,9 +21,7 @@ app = Flask(__name__,
             template_folder=resource_path('templates'), 
             static_folder=resource_path('static'))
 
-GEMINI_API_KEY = "" # enter your own api key
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = genai.Client()
 TRANSLATION_PROMPT = (
     """
 你是一位专业的、细致入微的翻译官。你的任务是根据用户提供的【源语言文本】进行高精度翻译。

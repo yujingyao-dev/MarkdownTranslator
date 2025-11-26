@@ -30,8 +30,9 @@ A localized translation tool based on Python + Flask + PyWebView, offering a nat
     ```bash
     pip install -r requirements.txt
     ```
+3. Add your personal Google genai api key at [.env](.env)
 
-3. Run:
+4. Run:
     ```bash
     python app.py
     ```
@@ -55,4 +56,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ## Acknowledgement
 - I thank my father and mother, who give birth to me. 
 - I thank Nanyang Technological University, who provides with a chance to try. 
-- I thank Google and Gemini 3 Pro, who assist my programming.
+- I thank Google Gemini 3 Pro, who assists my programming.
